@@ -2,7 +2,9 @@
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 # More info on Python, GitHub Actions, and Azure App Service: https://aka.ms/python-webapps-actions
 
-name: Build and deploy Python app to Azure Web App - stock-alert-site
+# Deploy static or Python app directly without zipping
+
+name: Deploy Static or Python App to Azure Web App - stock-alert-site
 
 on:
   push:
@@ -11,14 +13,16 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     permissions:
-      contents: read #This is required for actions/checkout
+      contents: read # Required for actions/checkout
 
     steps:
+      # Checkout the code from the repository
       - uses: actions/checkout@v4
 
+      # Optional Python environment setup (keep if you plan to expand with Python)
       - name: Set up Python version
         uses: actions/setup-python@v5
         with:
@@ -28,43 +32,8 @@ jobs:
         run: |
           python -m venv venv
           source venv/bin/activate
-      
-     # - name: Install dependencies
-      #  run: pip install -r requirements.txt
-        
-      # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
-      - name: Zip artifact for deployment
-        run: zip release.zip ./* -r
-
-      - name: Upload artifact for deployment jobs
-        uses: actions/upload-artifact@v4
-        with:
-          name: python-app
-          path: |
-            release.zip
-            !venv/
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    environment:
-      name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-    permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
-
-    steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v4
-        with:
-          name: python-app
-
-      - name: Unzip artifact for deployment
-        run: unzip release.zip
-
-      
+      # Skip zip creation, deploy the repository root directly
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -72,10 +41,10 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_7907CD62BC764697BDE3D43653678553 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_2F430DBF0AB64D628FE6502130D8ABD5 }}
 
-      - name: 'Deploy to Azure Web App'
+      - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
           app-name: 'stock-alert-site'
           slot-name: 'Production'
-          
+          package: '.'
