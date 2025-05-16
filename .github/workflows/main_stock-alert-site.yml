@@ -7,31 +7,12 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-
     steps:
-      # Checkout your repository content
       - uses: actions/checkout@v4
 
-      # Optional Python environment setup (safe to keep for future scripting)
-      - name: Set up Python version
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Create and start virtual environment
-        run: |
-          python -m venv venv
-          source venv/bin/activate
-
-      # No pip install since you have no requirements.txt
-
-      # Deploy directly from the repository root
-      - name: Deploy to Azure Web App
+      - name: Deploy to Azure Web App using Publish Profile
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'stock-alert-site-fjfrcudmenc8dbct'
