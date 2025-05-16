@@ -66,6 +66,6 @@ jobs:
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
-          app-name: 'stock-alert-site'
+          app-name: 'stock-alert-site-fjfrcudmenc8dbct'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_17BCA539AB0C45488E52677ABCEED8EA }}
